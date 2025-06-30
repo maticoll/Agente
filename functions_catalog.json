@@ -1,0 +1,49 @@
+[
+  {
+    "name": "get_weather",
+    "description": "Obtiene el clima actual para una ubicación.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "location": {
+          "type": "string",
+          "description": "Ciudad o país del que se desea saber el clima"
+      }
+    },
+    "required": ["location"]
+  }
+},
+  {
+    "name": "create_event",
+    "description": "Crea un evento en el calendario interno",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "date": {
+          "type": "string",
+          "description": "Fecha y hora del evento. Puede ser 'YYYY-MM-DD HH:MM', 'YYYY-MM-DDTHH:MM' o solo 'HH:MM' (interpreta como hoy).",
+          "examples": ["2025-06-27 11:10", "2025-06-27T11:10", "14:30"]
+        },
+        "title": {
+          "type": "string",
+          "description": "Título descriptivo del evento"
+        }
+      },
+      "required": ["date", "title"]
+    }
+  },
+  {
+    "name": "lookup_customer",
+    "description": "Busca la información del cliente por su ID",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "customer_id": {
+          "type": "integer",
+          "description": "ID del cliente"
+        }
+      },
+      "required": ["customer_id"]
+    }
+  }
+]
