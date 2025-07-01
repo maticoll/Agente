@@ -28,7 +28,7 @@ def schedule_event_reminder(scheduler, event_id: int, db_path: str, advance: tim
         raise RuntimeError("SchedulerService no iniciado: llama a init_scheduler(app) desde create_app()")
     app = _app
 
-    # Recuperar datos del evento
+    # Recuperar solo el evento indicado
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute(
@@ -37,7 +37,8 @@ def schedule_event_reminder(scheduler, event_id: int, db_path: str, advance: tim
         FROM eventos e
         JOIN customers c ON e.customer_id = c.id
         WHERE e.id = ?
-        """, (event_id,)
+        """,
+        (event_id,)
     )
     result = cursor.fetchone()
     conn.close()
@@ -61,6 +62,12 @@ def schedule_event_reminder(scheduler, event_id: int, db_path: str, advance: tim
             text = f"⏰ ¡Recordatorio! Tenés el evento «{title}» el {event_date_str}."
             payload = get_text_message_input(user_phone, text)
             send_message(payload)
+            # Borrar evento tras el recordatorio
+            conn2 = sqlite3.connect(db_path)
+            cursor2 = conn2.cursor()
+            cursor2.execute("DELETE FROM eventos WHERE id = ?", (event_id,))
+            conn2.commit()
+            conn2.close()
 
     reminder_job_id = f"reminder_event_{event_id}"
     if scheduler.get_job(reminder_job_id):

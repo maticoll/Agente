@@ -1,5 +1,5 @@
 # app/utils/datetime_utils.py
-from datetime import datetime
+from datetime import datetime,date
 
 def parse_iso8601(date_str: str) -> datetime:
     """
@@ -15,4 +15,14 @@ def parse_iso8601(date_str: str) -> datetime:
             return datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
         except ValueError:
             # Solo fecha
-            return datetime.strptime(date_str, "%Y-%m-%d")
+            try:
+                return datetime.strptime(date_str, "%Y-%m-%d")
+            except ValueError:
+                # Solo hora HH:MM → asumimos fecha de hoy
+                try:
+                    t = datetime.strptime(date_str, "%H:%M").time()
+                    today = date.today()
+                    return datetime.combine(today, t)
+                except ValueError:
+                    # Ningún formato válido
+                    raise ValueError(f"Formato de fecha inválido: {date_str}")

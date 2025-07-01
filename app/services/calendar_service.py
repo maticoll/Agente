@@ -1,5 +1,5 @@
 from .db import get_connection
-from datetime import datetime
+from datetime import datetime, date
 
 class CalendarService:
     def __init__(self):
@@ -39,6 +39,5 @@ class CalendarService:
         )
         conn.commit()
         event_id = cur.lastrowid
-        conn.close()
         return event_id
 

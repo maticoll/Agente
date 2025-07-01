@@ -3,7 +3,8 @@ import json
 
 from openai import OpenAI
 from flask import current_app
-from datetime import timedelta
+from datetime import timedelta,datetime
+from zoneinfo import ZoneInfo
 
 from app.services.db import get_connection, get_db_path
 from app.services.bot_logic import BotLogic
@@ -43,14 +44,26 @@ class Orchestrator:
             or re.search(r"\ba\slas\b|\b[0-2]?\d:[0-5]\d", message)
         )
         initial_call = {"name": "create_event"} if should_create_event else "auto"
-
+        local_now = datetime.now(ZoneInfo("America/Montevideo"))
+        today_str = local_now.strftime("%d/%m/%Y")
+        time_str  = local_now.strftime("%H:%M")
         # 2) Construcción del prompt para el LLM
         system_prompt = (
             "Eres un asistente de WhatsApp cálido y natural. "
             "Responde con lenguaje claro, directo y humano. "
             "Si el usuario pide clima, eventos o info de cliente, hazlo de forma amistosa. "
             "Evita sonar robótico o enciclopédico. "
-            "Si mencionan fecha con hora (ej. '25/6 a las 16:00'), usa toda la info al agendar."
+            f"Nota: la fecha y hora actuales son {today_str} a las {time_str}."
+            "Cuando el usuario pida un recordatorio, sigue estas reglas:\n"
+                " 1. Si detectas “dentro de X horas/minutos”, calcula la hora actual y súmale ese intervalo.\n"
+                " 2. Si indica fecha con hora (ej. '25/6 a las 16:00'), úsala tal cual para agendar.\n"
+                " 3. Si sólo indica fecha sin hora(ej. '3/7 ir al dentista'), responde:"
+                    "“¿A qué hora te gustaría que te recuerde ir al dentista el 3/7?”\n"
+                " 4. Si no indica fecha, asume que es para hoy.\n"
+                " 5. Si no indica ni fecha ni hora (ej. “Recuérdame ir al super”), devuélvele: "
+                    "“¿A qué hora te gustaría que te lo recuerde?”\n"
+                " 6. Extrae siempre la actividad a recordar (por ejemplo “ir al supermercado”) y devuelve "
+                    "el timestamp exacto resultante para guardarlo en la base de datos."
         )
         messages = [
             {"role": "system", "content": system_prompt},
