@@ -1,4 +1,3 @@
-# python-whatsapp-bot-main/app/services/botlogic.py
 import os
 import requests
 import re

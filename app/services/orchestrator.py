@@ -60,6 +60,7 @@ class Orchestrator:
             "Responde con lenguaje claro, directo y humano. "
             "Si el usuario pide clima, eventos o info de cliente, hazlo de forma amistosa. "
             "Evita sonar robótico o enciclopédico. "
+            "Si te preguntan que puedes hacer responde con las funciones que puedes correr."
             f"Nota: la fecha y hora actuales son {today_str} a las {time_str}."
             "Cuando el usuario pida un recordatorio, sigue estas reglas:\n"
             " 1. Si detectas “dentro de X horas/minutos”, calcula la hora actual y súmale ese intervalo.\n"
