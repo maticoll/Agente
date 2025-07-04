@@ -1,20 +1,22 @@
 from flask import Flask
 from .config import load_configurations, configure_logging
 from .services.scheduler_service import init_scheduler
-from .views import webhook_blueprint, debug_bp
-
+from .routes import webhook_bp  # asumimos que es el nuevo nombre
+# Si tenés más blueprints, agregalos acá
 
 def create_app():
-    # Configuración de logging y variables de entorno
+    # Logging + carga de .env
     configure_logging()
     app = Flask(__name__)
+
+    # Carga de variables y configuración general (como DATABASE_URL)
     load_configurations(app)
 
-    # Inicializar scheduler con la instancia de la app
+    # Iniciar el scheduler (recordatorios)
     init_scheduler(app)
 
-    # Registrar blueprints
-    app.register_blueprint(webhook_blueprint)
-    app.register_blueprint(debug_bp)
+    # Registrar rutas (blueprints)
+    app.register_blueprint(webhook_bp)
+    # app.register_blueprint(debug_bp)  ← si lo vas a usar
 
     return app
