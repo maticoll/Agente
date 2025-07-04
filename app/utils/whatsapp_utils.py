@@ -32,6 +32,43 @@ def get_text_message_input(recipient: str, text: str) -> dict:
     }
 
 
+def get_cita_template_input(
+    recipient: str,
+    mensaje: str,
+    recordatorio: str
+) -> dict:
+    """
+    Construye el payload para enviar la plantilla 'cita' en español.
+    Parámetros:
+      - mensaje: valor para {{mensaje}}
+      - recordatorio: valor para {{recordatorio}}
+    """
+    return {
+        "messaging_product": "whatsapp",
+        "recipient_type": "individual",
+        "to": recipient,
+        "type": "template",
+        "template": {
+            "name": "cita",
+            "language": {"code": "es"},
+            "components": [
+                {
+                    "type": "BODY",
+                    "parameters": [
+                        {"type": "text", "text": mensaje},
+                        {"type": "text", "text": recordatorio}
+                    ]
+                },
+                {
+                    "type": "BUTTON",
+                    "sub_type": "QUICK_REPLY",
+                    "index": 0
+                }
+            ]
+        }
+    }
+
+
 def send_message(payload: dict) -> dict:
     """
     Envía un mensaje a través de la Graph API de WhatsApp y registra la respuesta.
@@ -108,7 +145,21 @@ def process_whatsapp_message(body: dict):
         else:
             response = "⚠️ Solo entiendo texto y audio actualmente."
 
-        payload = get_text_message_input(recipient, response)
+        # Selección de payload según entorno y tipo de respuesta
+        if isinstance(response, dict) and "date" in response and "title" in response:
+            if os.getenv("ENV") == "development":
+                # En development, enviamos texto libre para facilitar pruebas
+                texto = f"{response['title']} — Recordatorio: {response['date']}"
+                payload = get_text_message_input(recipient, texto)
+            else:
+                # En producción, usamos la plantilla 'cita'
+                payload = get_cita_template_input(
+                    recipient,
+                    mensaje=response["title"],
+                    recordatorio=response["date"]
+                )
+        else:
+            payload = get_text_message_input(recipient, str(response))
         send_message(payload)
 
     except Exception as e:

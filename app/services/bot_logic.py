@@ -114,3 +114,19 @@ class BotLogic:
             condicion = " ".join(primera.split()[2:-1])
             return (f"En {lugar.title()} ahora está {condicion.lower()} y hay unos {temp_actual}.")
         return f"Según lo que encontré, en {lugar.title()}: {texto_raw}"
+
+    # en app/services/bot_logic.py (o donde manejes la intención de "crear cita")
+    def handle_create_appointment(user_text: str) -> dict | str:
+        """
+        Si el usuario pide crear una cita, devuelve:
+        { "title": "<texto de confirmación>",
+            "date":  "YYYY-MM-DD HH:MM" }
+        En cualquier otro caso, devuelve un string de respuesta normal.
+        """
+        if "crear cita" in user_text.lower():
+            # parseas la fecha/hora del texto o la pides en pasos anteriores
+            fecha = "2025-07-12 14:00"
+            titulo = "Tu cita está confirmada"
+            return {"title": titulo, "date": fecha}
+        # si no, caes al fallback de ChatGPT u otro handler
+        return "Lo siento, no entendí tu mensaje."
