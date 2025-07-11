@@ -100,12 +100,6 @@ def process_whatsapp_message(body: dict):
         logging.info(f"📩 Tipo de mensaje recibido: {msg_type}")
 
         sender = msg["from"]
-        if sender == current_app.config["RECIPIENT_WAID"]:
-            # Solo procesar #debug de vuelta al bot
-            if msg_type == "text" and "#debug" in msg["text"]["body"].lower():
-                logging.info("🧪 Procesando #debug interno")
-            else:
-                return
 
         contact = body["entry"][0]["changes"][0]["value"]["contacts"][0]
         recipient = contact["wa_id"]
